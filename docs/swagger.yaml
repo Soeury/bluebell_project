@@ -1,0 +1,439 @@
+basePath: /api/v1
+definitions:
+  controllers.ResCode:
+    enum:
+    - 1000
+    - 1001
+    - 1002
+    - 1003
+    - 1004
+    - 1005
+    - 1006
+    - 1007
+    type: integer
+    x-enum-varnames:
+    - CodeSuccess
+    - CodeInvalidParam
+    - CodeUserExist
+    - CodeUserNotExist
+    - CodeInvalidPassword
+    - CodeServerBusy
+    - CodeNeedLogin
+    - CodeInvalidToken
+  controllers.ResCommunity_:
+    properties:
+      code:
+        allOf:
+        - $ref: '#/definitions/controllers.ResCode'
+        description: 状态码
+      data:
+        description: 数据
+        items:
+          $ref: '#/definitions/models.Community'
+        type: array
+      message:
+        description: 提示信息
+        type: string
+    type: object
+  controllers.ResNil_:
+    properties:
+      code:
+        allOf:
+        - $ref: '#/definitions/controllers.ResCode'
+        description: 状态码
+      data:
+        description: 数据
+        type: string
+      message:
+        description: 提示信息
+        type: string
+    type: object
+  controllers.ResPostList_:
+    properties:
+      code:
+        allOf:
+        - $ref: '#/definitions/controllers.ResCode'
+        description: 状态码
+      data:
+        description: 数据
+        items:
+          $ref: '#/definitions/models.ApiPostDetail'
+        type: array
+      message:
+        description: 提示信息
+        type: string
+    type: object
+  controllers.ResToken_:
+    properties:
+      code:
+        allOf:
+        - $ref: '#/definitions/controllers.ResCode'
+        description: 状态码
+      data:
+        description: 数据
+        type: string
+      message:
+        description: 提示信息
+        type: string
+    type: object
+  models.ApiPostDetail:
+    properties:
+      author_name:
+        type: string
+      community_detail:
+        $ref: '#/definitions/models.CommunityDetail'
+      post:
+        $ref: '#/definitions/models.Post'
+      vote_num:
+        type: integer
+    type: object
+  models.Community:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.CommunityDetail:
+    properties:
+      create_time:
+        type: string
+      id:
+        type: integer
+      introduction:
+        type: string
+      name:
+        type: string
+    type: object
+  models.ParamLogin:
+    properties:
+      password:
+        description: 密码
+        type: string
+      username:
+        description: 用户名
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.ParamSignUp:
+    properties:
+      password:
+        description: 密码
+        type: string
+      repassword:
+        description: 确认密码
+        type: string
+      username:
+        description: 用户名
+        type: string
+    required:
+    - password
+    - repassword
+    - username
+    type: object
+  models.ParamVoteData:
+    properties:
+      direction:
+        description: '投票类型 : 赞成(1)反对(-1)取消(0)'
+        enum:
+        - 1
+        - 0
+        - -1
+        example: "0"
+        type: string
+      post_id:
+        description: UserID 可以从登陆的用户中获取即可
+        example: "0"
+        type: string
+    required:
+    - post_id
+    type: object
+  models.Post:
+    properties:
+      author_id:
+        example: "0"
+        type: string
+      community_id:
+        type: integer
+      content:
+        type: string
+      create_time:
+        type: string
+      id:
+        example: "0"
+        type: string
+      status:
+        type: integer
+      title:
+        type: string
+    required:
+    - community_id
+    - content
+    - title
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: 1964475295@qq.com
+    name: Mr_rabbit
+  description: '[use bluebell to practice]'
+  title: Bluebell项目接口文档
+  version: "1.0"
+paths:
+  /community:
+    get:
+      consumes:
+      - application/json
+      description: 实现用户查询所有的社区的详细信息的功能
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ResCommunity_'
+      security:
+      - ApiKeyAuth: []
+      summary: 查询社区列表
+      tags:
+      - community_group
+  /community/:id:
+    get:
+      consumes:
+      - application/json
+      description: 实现用户查询指定的社区的详细信息的功能
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: community_id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ResCommunity_'
+      security:
+      - ApiKeyAuth: []
+      summary: 查询指定社区信息
+      tags:
+      - community_group
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: 实现用户进行网站登录的功能
+      parameters:
+      - description: 'login: username , password'
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ResToken_'
+      summary: 实现用户登录
+      tags:
+      - user_group
+  /post:
+    post:
+      consumes:
+      - application/json
+      description: 将请求中携带的帖子信息保存到数据库里面
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 'post : id,title,content,community'
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/models.Post'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ResNil_'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建帖子并入库
+      tags:
+      - post_group
+  /post/:id:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定帖子列表的详细信息
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: post_id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ResPostList_'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取指定帖子详细信息
+      tags:
+      - post_group
+  /posts:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有帖子列表的详细信息
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: string
+      - description: 每页数据量
+        in: query
+        name: size
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ResPostList_'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取所有帖子详细信息
+      tags:
+      - post_group
+  /posts2:
+    get:
+      consumes:
+      - application/json
+      description: 根据前端需要(按时间 or 按分数 or 按社区)获取所有帖子列表
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 可以为空
+        in: query
+        name: community_id
+        type: integer
+      - description: 排序方式(time | score)
+        example: time
+        in: query
+        name: order
+        type: string
+      - description: 分页页码
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - description: 每页数据量
+        example: 10
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ResPostList_'
+      security:
+      - ApiKeyAuth: []
+      summary: 升级版帖子列表接口
+      tags:
+      - post_group
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: 实现用户注册网站
+      parameters:
+      - description: 'signup : username , password , re_password'
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamSignUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ResNil_'
+      summary: 实现用户注册功能
+      tags:
+      - user_group
+  /vote:
+    post:
+      consumes:
+      - application/json
+      description: 实现用户对帖子进行投票的功能
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 'vote : post_id direction'
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamVoteData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.ResNil_'
+      security:
+      - ApiKeyAuth: []
+      summary: 实现帖子投票功能
+      tags:
+      - vote_group
+swagger: "2.0"

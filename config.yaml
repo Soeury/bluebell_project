@@ -1,0 +1,31 @@
+staging:
+  name: "bluebell"
+  mode: "dev"
+  version: "v4.8.0"
+  port: 8080
+  start_time: "2024-08-17" 
+  machine_id: 1
+log:
+  level: "debug"
+  filename: "./bluebell.log"
+  max_size: 200
+  max_age: 30
+  max_backups: 7
+mysql:
+  host: "localhost"
+  port: 3306
+  user: "root"
+  password: "123456"
+  dbname: "bluebell"
+  max_open_conns: 200
+  max_idle_conns: 50
+redis:
+  host: "192.168.19.130"
+  port: 6379
+  password: "123456"
+  db: 0
+  poolsize: 100
+auth:
+  jwt_time: 4000
+
+ 
